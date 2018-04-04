@@ -1,26 +1,36 @@
 import Foundation
 import numsw
 
+let t1 = NDArray<Float>(shape: [3, 1], elements: [1, 2, 3])
+let t2 = NDArray<Float>(shape: [3, 1], elements: [4, 5, 6])
+let t3 = NDArray<Float>(shape: [3, 2, 2], elements: [0, 1, 1, 2, 2, 3, 0, 1, 1, 2, 2, 3])
+
+print(t1)
+print(t2)
+print(t1 + t2)
+print(t1 * t2)
+print(t3)
+
 public protocol Node {
-    func run() ->  NDArray<Float>?
+    func run() -> Float?
 }
 
 open class Constant : Node {
-    internal var result:  NDArray<Float>?
+    internal var result: Float?
     internal var edges: [Node]
 
-    public init(_ value:  NDArray<Float>) {
+    public init(_ value: Float) {
         self.edges = [Node]()
         self.result = value
     }
 
-    public func run() ->  NDArray<Float>? {
+    public func run() -> Float? {
         return result
     }
 }
 
 open class TwoOperandNode : Node {
-    internal var result:  NDArray<Float>?
+    internal var result: Float?
     internal var edges: [Node]
 
     init(_ node1: Node, _ node2: Node) {
@@ -29,34 +39,34 @@ open class TwoOperandNode : Node {
         self.edges.append(node2)
     }
     
-    public func run() ->  NDArray<Float>? {
+    public func run() -> Float? {
         return result
     }
 }
 
 open class Add : TwoOperandNode {
-    public override func run() ->  NDArray<Float>? {
+    public override func run() -> Float? {
         guard self.edges.count == 2, let a = self.edges[0].run(), let b = self.edges[1].run() else { return nil }
         return a + b
     }
 }
 
 open class Subtract : TwoOperandNode {
-    public override func run() ->  NDArray<Float>? {
+    public override func run() -> Float? {
         guard self.edges.count == 2, let a = self.edges[0].run(), let b = self.edges[1].run() else { return nil }
         return a - b
     }
 }
 
 open class Multiply : TwoOperandNode {
-    public override func run() ->  NDArray<Float>? {
+    public override func run() -> Float? {
         guard self.edges.count == 2, let a = self.edges[0].run(), let b = self.edges[1].run() else { return nil }
         return a * b
     }
 }
 
 open class Divide : TwoOperandNode {
-    public override func run() ->  NDArray<Float>? {
+    public override func run() -> Float? {
         guard self.edges.count == 2, let a = self.edges[0].run(), let b = self.edges[1].run() else { return nil }
         return a / b
     }
@@ -66,7 +76,7 @@ open class Divide : TwoOperandNode {
 class TensorFlow {
     var nodes = [Node]()
 
-    func constant(_ v:  NDArray<Float>) -> Node {
+    func constant(_ v: Float) -> Node {
         let x = Constant(v)
         nodes.append(x)
         return x
@@ -96,19 +106,18 @@ class TensorFlow {
         return x
     }
 
-    func run(_ n: Node) ->  NDArray<Float>? {
+    func run(_ n: Node) -> Float? {
         return n.run()
     }
 }
 
 var tf = TensorFlow()
 
-let a = tf.constant(NDArray<Float>(shape: [3], elements: [5, 7, 10]))
-let b = tf.constant(NDArray<Float>(shape: [3], elements: [2, 3, 21]))
-let c = tf.constant(NDArray<Float>(shape: [3], elements: [3, 5, 7]))
+let a = tf.constant(5)
+let b = tf.constant(2)
+let c = tf.constant(3)
 var d = tf.multiply(a,b)
 var e = tf.add(c,b)
 var f = tf.subtract(d,e)
 
 print("result: \(tf.run(f)!)") 
-
