@@ -1,99 +1,63 @@
 import Foundation
 
-//protocol GraphNodeProtocol {
-//    associatedtype T
-//
-//    var result: T { get set }
-//    var edges: [Self] { get set }
-//
-//    mutating func add(edge: inout Self, undirected: Bool)
-//    mutating func run() -> T
-//}
-//
-//extension GraphNodeProtocol {
-//    mutating func add(edge: inout Self, undirected: Bool = false) {
-//        edges.append(edge)
-//        if undirected {
-//            edge.edges.append(self)
-//        }
-//    }
-//}
-//
-//final class Constant<V> : GraphNodeProtocol {
-//    typealias T = V
-//
-//    var result: V  //    private(set) var result: T
-//    var edges: [GraphNodeProtocol]
-//
-//    init(_ value: T) {
-//        self.result = value
-//        edges = [GraphNodeProtocol]()
-//    }
-//
-//    func run() -> V {
-//        return result
-//    }
-//}
+public protocol Node {
+    func run() -> Float?
+}
 
+open class Constant : Node {
+    internal var result: Float?
+    internal var edges: [Node]
 
-class Node {
-    fileprivate(set) var result: Float?
-    fileprivate(set) var edges: [Node]
-    
-    init(_ value: Float? = nil) {
-        edges = [Node]()
+    public init(_ value: Float) {
+        self.edges = [Node]()
         self.result = value
     }
-    
-    func add(edge: inout Node, undirected: Bool = false) {
-        edges.append(edge)
-        if undirected {
-            edge.edges.append(self)
-        }
-    }
-    
-    func run() -> Float? {
+
+    public func run() -> Float? {
         return result
     }
 }
 
-class TwoOperandNode : Node {
+open class TwoOperandNode : Node {
+    internal var result: Float?
+    internal var edges: [Node]
+
     init(_ node1: Node, _ node2: Node) {
-        super.init()
+        self.edges = [Node]()
         self.edges.append(node1)
         self.edges.append(node2)
     }
-}
-
-final class Constant : Node {
-}
-
-
-final class Add : TwoOperandNode {
-    override func run() -> Float? {
-        guard self.edges.count == 2 else { return nil }
-        return self.edges[0].run()! + self.edges[1].run()!
+    
+    public func run() -> Float? {
+        return result
     }
 }
 
-final class Subtract : TwoOperandNode {
-    override func run() -> Float? {
-        guard self.edges.count == 2 else { return nil }
-        return self.edges[0].run()! - self.edges[1].run()!
+open class Add : TwoOperandNode {
+    public override func run() -> Float? {
+        guard self.edges.count == 2, let a = self.edges[0].run(), let b = self.edges[1].run() else { return nil }
+        return a + b
     }
 }
 
-final class Multiply : TwoOperandNode {
-    override func run() -> Float? {
-        guard self.edges.count == 2 else { return nil }
-        return self.edges[0].run()! * self.edges[1].run()!
+open class Subtract : TwoOperandNode {
+    public override func run() -> Float? {
+        guard self.edges.count == 2, let a = self.edges[0].run(), let b = self.edges[1].run() else { return nil }
+        return a - b
     }
 }
 
-final class Divide : TwoOperandNode {
-    override func run() -> Float? {
-        guard self.edges.count == 2 else { return nil }
-        return self.edges[0].run()! / self.edges[1].run()!
+open class Multiply : TwoOperandNode {
+    public override func run() -> Float? {
+        guard self.edges.count == 2, let a = self.edges[0].run(), let b = self.edges[1].run() else { return nil }
+        return a * b
+    }
+}
+
+open class Divide : TwoOperandNode {
+    public override func run() -> Float? {
+        guard self.edges.count == 2, let a = self.edges[0].run(), let b = self.edges[1].run() else { return nil }
+        return a / b
     }
 }
 
@@ -106,7 +70,7 @@ class TensorFlow {
         nodes.append(x)
         return x
     }
-    
+
     func add(_ n1: Node, _ n2: Node) -> Node {
         let x = Add(n1, n2)
         nodes.append(x)
@@ -130,7 +94,7 @@ class TensorFlow {
         nodes.append(x)
         return x
     }
-    
+
     func run(_ n: Node) -> Float? {
         return n.run()
     }
@@ -145,15 +109,4 @@ var d = tf.multiply(a,b)
 var e = tf.add(c,b)
 var f = tf.subtract(d,e)
 
-//sess = tf.Session()
-//outs = sess.run(f)
-//sess.close()
-
-tf.run(f)
-
-
-/// ++ NumPy
-
-/// with Swift Python already available
-
-
+print("result: \(tf.run(f)!)") 

@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "numsw",
+        "repositoryURL": "https://github.com/JacopoMangiavacchi/numsw",
+        "state": {
+          "branch": null,
+          "revision": "ac0c6e2d76d7fd43e2555629d7b1ac62a4eb4ae8",
+          "version": "0.0.1"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
